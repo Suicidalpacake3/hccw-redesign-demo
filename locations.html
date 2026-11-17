@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Our Locations | Richmond, Roanoke &amp; DC Metro | HCCW</title>
+  <meta name="description" content="With offices in Richmond, Roanoke and the Metropolitan Washington, DC area, Harman Claytor Corrigan & Wellman provides legal services across Virginia, DC, Maryland and the Mid-Atlantic.">
+  <link rel="icon" href="assets/img/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="locations">
+
+<main id="main">
+  <section class="page-hero" style="padding-bottom:180px">
+    <div class="ph-media"><img src="assets/img/locations/richmond-skyline-wide.jpg" alt="" style="opacity:.5"></div>
+    <div class="container">
+      <nav class="crumbs fade-up" aria-label="Breadcrumb"><a href="index.html">Home</a><i data-icon="chevronRight"></i><span>Locations</span></nav>
+      <span class="eyebrow light fade-up d1">Three offices, one team</span>
+      <h1 class="fade-up d1">Wherever and whenever you need us.</h1>
+      <p class="lead fade-up d2">With offices in Richmond, Roanoke and the Metropolitan Washington, DC area, we are ideally located to provide legal services all across Virginia, the District of Columbia, Maryland, and throughout the Mid-Atlantic.</p>
+    </div>
+  </section>
+
+  <section style="margin-top:-130px;position:relative;z-index:5;padding-bottom:40px">
+    <div class="container">
+      <div class="loc-explorer reveal">
+        <div class="loc-list" id="locList">
+          <div class="ll-foot" id="llFoot"></div>
+        </div>
+        <div class="map-wrap">
+          <div id="map" aria-label="Map of HCCW offices"></div>
+          <div class="map-card" id="mapCard"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="offices"></div>
+
+  <section class="section bg-navy on-dark">
+    <div class="container">
+      <div class="section-head center reveal">
+        <span class="eyebrow">Licensed to practice in</span>
+        <h2>Five jurisdictions. One firm.</h2>
+        <p>We have attorneys licensed to practice in Virginia, Washington, DC, Maryland, West Virginia, and North Carolina.</p>
+      </div>
+      <div class="jurisdictions reveal" id="juris"></div>
+    </div>
+  </section>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="assets/js/data-generated.js"></script>
+<script src="assets/js/data.js"></script>
+<script>
+  (function () {
+    const H = window.HCCW;
+    const $ = (id) => document.getElementById(id);
+    const O = H.offices;
+    const extra = {
+      richmond: { img: 'assets/img/stock/hallway.jpg', note: 'Glen Allen, in the Innsbrook corridor west of downtown Richmond.' },
+      dc: { img: 'assets/img/locations/alexandria-800-king.jpg', credit: 'Photo: m01229 / Wikimedia Commons, CC BY 2.0', note: 'On Duke Street near the King Street Metro, a short trip to the District.' },
+      roanoke: { img: 'assets/img/locations/roanoke-star.jpg', credit: 'Photo: SchuminWeb / Wikimedia Commons, CC BY-SA 2.0', note: 'In downtown Roanoke, beneath Mill Mountain and the Roanoke Star.' }
+    };
+    const dirUrl = (o) => 'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(`${o.street}, ${o.cityLine}`);
+    const people = (o) => H.attorneys.filter((a) => a.loc === o.filter);
+
+    /* ----- Office tabs ----- */
+    $('locList').insertAdjacentHTML('afterbegin', O.map((o, i) => `
+      <button class="loc-tab" data-i="${i}">
+        <span class="lt-n">0${i + 1}</span>
+        <span><h3>${o.city}</h3><p>${o.street}<br>${o.cityLine}</p>
+        <span class="lt-meta"><span>${people(o).length} attorneys</span><span>${o.tag}</span></span></span>
+      </button>`).join(''));
+    $('llFoot').innerHTML = `All offices: <b>${H.firm.phone}</b><br>Toll free: <b>${H.firm.tollFree}</b>`;
+
+    /* ----- Map ----- */
+    let map = null, markers = [];
+    const card = $('mapCard');
+    function renderCard(o) {
+      card.classList.add('swap');
+      setTimeout(() => {
+        card.innerHTML = `
+          <div class="mc-img"><img src="${o.img}" alt="${o.city}"><span class="photo-credit">${o.credit}</span></div>
+          <div class="mc-body"><h4>${o.label}</h4><address>${o.street}<br>${o.cityLine}<br>Phone: ${o.phone} · Fax: ${o.fax}</address>
+          <div class="mc-actions"><a class="btn btn-gold btn-sm" href="${dirUrl(o)}" target="_blank" rel="noopener"><i data-icon="nav"></i> Directions</a><a class="btn btn-outline btn-sm" href="#${o.id}">Office details</a></div></div>`;
+        if (H.hydrateIcons) H.hydrateIcons(card);
+        card.classList.remove('swap');
+      }, 250);
+    }
+    function select(i, fly = true) {
+      document.querySelectorAll('.loc-tab').forEach((t) => t.classList.toggle('active', +t.dataset.i === i));
+      const o = O[i];
+      renderCard(o);
+      if (map && fly) {
+        const z = 13, wide = map.getSize().x > 700;
+        const pt = map.project([o.lat, o.lng], z).add(wide ? L.point(-170, 90) : L.point(0, 110));
+        map.flyTo(map.unproject(pt, z), z, { duration: 1.6 });
+      }
+      markers.forEach((m, k) => m.getElement() && m.getElement().classList.toggle('is-active', k === i));
+    }
+    try {
+      map = L.map('map', { scrollWheelZoom: false, zoomControl: true }).setView([38.0, -78.4], 7);
+      const esri = 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/';
+      L.tileLayer(esri + 'World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Tiles &copy; Esri, HERE, Garmin, &copy; OpenStreetMap contributors', maxZoom: 16
+      }).addTo(map);
+      L.tileLayer(esri + 'World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}', { maxZoom: 16 }).addTo(map);
+      const pin = L.divIcon({ className: '', html: '<div class="hccw-pin"><span class="pulse"></span><span class="core"></span></div>', iconSize: [46, 46], iconAnchor: [23, 23] });
+      markers = O.map((o, i) => L.marker([o.lat, o.lng], { icon: pin }).addTo(map)
+        .bindTooltip(o.city, { direction: 'top', offset: [0, -14], className: 'hccw-tip' })
+        .on('click', () => select(i)));
+      map.fitBounds(L.latLngBounds(O.map((o) => [o.lat, o.lng])).pad(0.25));
+    } catch (e) { $('map').innerHTML = '<div style="display:grid;place-items:center;height:100%;color:#667">Map unavailable offline</div>'; }
+
+    $('locList').addEventListener('click', (e) => { const t = e.target.closest('.loc-tab'); if (t) select(+t.dataset.i); });
+    const startIdx = Math.max(0, O.findIndex((o) => o.id === location.hash.slice(1)));
+    renderCard(O[startIdx]);
+    document.querySelectorAll('.loc-tab')[startIdx].classList.add('active');
+    // Fly in from the regional view once the map is on screen
+    const mo = new IntersectionObserver((en) => { if (en[0].isIntersecting) { setTimeout(() => select(startIdx), 700); mo.disconnect(); } }, { threshold: .4 });
+    mo.observe($('map'));
+
+    /* ----- Office sections ----- */
+    $('offices').innerHTML = O.map((o, i) => {
+      const ppl = people(o), x = extra[o.id];
+      const faces = ppl.slice(0, 7).map((a) => `<img src="assets/img/attorneys/${a.slug}.jpg" alt="${a.name}" title="${a.name}" loading="lazy">`).join('');
+      return `
+      <section class="office-section" id="${o.id}">
+        <div class="container office-grid">
+          <div class="split-media reveal ${i % 2 ? 'from-right' : 'from-left'}">
+            <div class="office-media img-reveal"><img src="${o.img}" alt="${o.city}" loading="lazy"><span class="photo-credit">${o.credit}</span></div>
+            <div class="img-float reveal zoom" style="--d:.3s;${i % 2 ? 'right:auto;left:-40px;' : ''}"><img src="${x.img}" alt="" loading="lazy">${x.credit ? `<span class="photo-credit" style="font-size:.55rem">${x.credit}</span>` : ''}</div>
+          </div>
+          <div class="reveal ${i % 2 ? 'from-left' : 'from-right'}">
+            <div class="office-num">Office 0${i + 1} · ${o.tag}</div>
+            <h2>${o.label}</h2>
+            <p class="lead">${o.blurb}</p>
+            <p style="color:var(--muted)">${x.note}</p>
+            <div class="office-facts">
+              <div class="fact"><small>Address</small><b>${o.street}<br>${o.cityLine}</b></div>
+              <div class="fact"><small>Phone</small><b><a href="tel:${o.phone}">${o.phone}</a></b><small style="margin-top:10px">Fax</small><b>${o.fax}</b></div>
+            </div>
+            <div class="face-stack">${faces}<span class="more"><b>${ppl.length} attorneys</b> in this office</span></div>
+            <div style="display:flex;gap:12px;flex-wrap:wrap">
+              <a class="btn" href="attorneys.html?location=${encodeURIComponent(o.filter)}"><i data-icon="users"></i> Meet the ${o.city} team</a>
+              <a class="btn btn-outline" href="${dirUrl(o)}" target="_blank" rel="noopener"><i data-icon="nav"></i> Get directions</a>
+            </div>
+          </div>
+        </div>
+      </section>`;
+    }).join('');
+
+    const ab = { 'Virginia': 'VA', 'Washington, DC': 'DC', 'Maryland': 'MD', 'West Virginia': 'WV', 'North Carolina': 'NC' };
+    $('juris').innerHTML = H.firm.licensed.map((j) => `<span class="juris"><span class="abbr">${ab[j]}</span>${j}</span>`).join('');
+  })();
+</script>
+<script src="assets/js/site.js"></script>
+</body>
+</html>

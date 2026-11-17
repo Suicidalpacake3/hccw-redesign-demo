@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Careers | Open Positions | HCCW</title>
+  <meta name="description" content="Explore administrative, staff, and attorney job openings at Harman Claytor Corrigan & Wellman.">
+  <link rel="icon" href="assets/img/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="careers">
+
+<main id="main">
+  <section class="page-hero">
+    <div class="ph-media"><img src="assets/img/stock/team.jpg" alt=""></div>
+    <div class="container">
+      <nav class="crumbs fade-up" aria-label="Breadcrumb"><a href="index.html">Home</a><i data-icon="chevronRight"></i><span>Careers</span></nav>
+      <span class="eyebrow light fade-up d1">Open Positions</span>
+      <h1 class="fade-up d1">Do your best work with us.</h1>
+      <p class="lead fade-up d2">Our office atmosphere is one of mutual respect among attorneys and staff while maintaining a professional, friendly environment.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container split">
+      <div class="reveal from-left">
+        <span class="eyebrow">Working at Harman Claytor</span>
+        <h2>Top notch attorneys and staff.</h2>
+        <p class="lead">Harman Claytor has excelled over the years due to the high level of service we provide our clients and by employing top notch attorneys and staff to provide those services.</p>
+        <ul class="checklist">
+          <li><span class="tick"><i data-icon="check"></i></span><span><b>Three offices:</b> Richmond, Roanoke and DC Metro (Alexandria).</span></li>
+          <li><span class="tick"><i data-icon="check"></i></span><span><b>A civil litigation focus</b> across 21 practice areas.</span></li>
+          <li><span class="tick"><i data-icon="check"></i></span><span><b>Mutual respect</b> among attorneys and staff, every day.</span></li>
+        </ul>
+      </div>
+      <div class="split-media reveal from-right">
+        <div class="img-main img-reveal" style="aspect-ratio:5/4"><img src="assets/img/stock/conference.jpg" alt="" loading="lazy"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section bg-ivory">
+    <div class="container-narrow">
+      <div class="section-head reveal">
+        <span class="eyebrow">Current openings</span>
+        <h2>Explore our administrative, staff, and attorney job openings.</h2>
+      </div>
+      <div class="chips reveal" id="jobChips" style="margin-bottom:26px"></div>
+      <div id="jobs" data-stagger=".08"></div>
+    </div>
+  </section>
+
+  <section class="section bg-navy on-dark">
+    <div class="container-narrow">
+      <div class="section-head reveal">
+        <span class="eyebrow">Don’t see your role?</span>
+        <h2>We’re always looking for great people.</h2>
+        <p>Harman Claytor is always seeking professionals with impeccable skills and an earnest desire to serve our clients. Submit your resume or inquiry to <a href="mailto:careers@hccw.com" style="color:var(--gold)">careers@hccw.com</a> with one of the following subject lines:</p>
+      </div>
+      <div class="subject-lines reveal" id="subjects"></div>
+    </div>
+  </section>
+</main>
+
+<script src="assets/js/data-generated.js"></script>
+<script src="assets/js/data.js"></script>
+<script>
+  (function () {
+    const H = window.HCCW;
+    const $ = (id) => document.getElementById(id);
+    const J = H.jobs;
+    const types = ['All', ...new Set(J.map((j) => j.office.split(' /')[0]))];
+    $('jobChips').innerHTML = types.map((t, i) => `<button class="chip ${i ? '' : 'active'}" data-t="${t}">${t === 'All' ? 'All offices' : t} <span class="count">${t === 'All' ? J.length : J.filter((j) => j.office.startsWith(t)).length}</span></button>`).join('');
+
+    $('jobs').innerHTML = J.map((j, i) => `
+      <div class="job reveal" data-office="${j.office}">
+        <button class="job-head" aria-expanded="false">
+          <span><span class="jh-kicker">${j.type} · ${j.office} Office</span><h3>${j.title.replace('Attorney: ', '')}</h3></span>
+          <span class="plus"><i data-icon="plus"></i></span>
+        </button>
+        <div class="job-body"><div><div class="jb-inner">
+          <p>${j.text}</p>
+          <div style="display:flex;gap:12px;flex-wrap:wrap">
+            <a class="btn btn-sm" href="mailto:careers@hccw.com?subject=${encodeURIComponent(j.title + ', ' + j.office + ' Office')}"><i data-icon="send"></i> Apply by email</a>
+            <a class="btn btn-outline btn-sm" href="#" data-demo="This is a demo. The full job description lives on the firm’s current site.">Full description</a>
+          </div>
+        </div></div></div>
+      </div>`).join('');
+
+    $('jobs').addEventListener('click', (e) => {
+      const h = e.target.closest('.job-head'); if (!h) return;
+      const job = h.parentElement; const open = !job.classList.contains('open');
+      job.classList.toggle('open', open); h.setAttribute('aria-expanded', open);
+    });
+    $('jobChips').addEventListener('click', (e) => {
+      const b = e.target.closest('.chip'); if (!b) return;
+      $('jobChips').querySelectorAll('.chip').forEach((x) => x.classList.toggle('active', x === b));
+      document.querySelectorAll('.job').forEach((j) => { j.style.display = b.dataset.t === 'All' || j.dataset.office.startsWith(b.dataset.t) ? '' : 'none'; });
+    });
+
+    const subjects = ['Attorney Positions, Richmond Office', 'Attorney Positions, DC Metro Office', 'Summer Associate Positions, Richmond Office', 'Staff Positions'];
+    $('subjects').innerHTML = subjects.map((s) => `<div class="subject"><span>${s}</span><button type="button" data-copy="${s}"><i data-icon="copy"></i> Copy</button></div>`).join('');
+    $('subjects').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-copy]'); if (!b) return;
+      (navigator.clipboard ? navigator.clipboard.writeText(b.dataset.copy) : Promise.reject()).then(() => H.toast(`Copied subject line: <b>${b.dataset.copy}</b>`, 'check')).catch(() => H.toast(b.dataset.copy));
+    });
+  })();
+</script>
+<script src="assets/js/site.js"></script>
+</body>
+</html>

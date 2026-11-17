@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Attorneys | Civil Litigation Attorneys in Virginia &amp; DC | HCCW</title>
+  <meta name="description" content="Our civil litigation attorneys in Virginia and DC are zealous litigators, skilled negotiators, and vigorous researchers.">
+  <link rel="icon" href="assets/img/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="attorneys">
+
+<main id="main">
+  <section class="page-hero">
+    <div class="ph-media"><img src="assets/img/stock/suit.jpg" alt=""></div>
+    <div class="container">
+      <nav class="crumbs fade-up" aria-label="Breadcrumb"><a href="index.html">Home</a><i data-icon="chevronRight"></i><span>Attorneys</span></nav>
+      <span class="eyebrow light fade-up d1">Our People</span>
+      <h1 class="fade-up d1">Meet our attorneys.</h1>
+      <p class="lead fade-up d2">A team of legal professionals dedicated to resolving complex civil litigation challenges. Together, we have hundreds of years of industry experience guiding our relationships.</p>
+    </div>
+  </section>
+
+  <div class="filter-shell" id="filters">
+    <div class="container">
+      <div class="filter-row">
+        <label class="search-input">
+          <span class="sr-only">Search by attorney name</span>
+          <i data-icon="search"></i>
+          <input id="q" type="search" placeholder="Search by name" autocomplete="off">
+        </label>
+        <div class="seg" id="locSeg" role="radiogroup" aria-label="Office"><span class="seg-pill"></span></div>
+        <label class="select" id="roleWrap"><span class="sr-only">Position</span><select id="role"></select><i data-icon="chevron"></i></label>
+      </div>
+      <div class="filter-row">
+        <label class="select" id="areaWrap"><span class="sr-only">Practice area</span><select id="area"></select><i data-icon="chevron"></i></label>
+        <label class="select" id="barWrap"><span class="sr-only">Bar admission</span><select id="bar"></select><i data-icon="chevron"></i></label>
+        <div class="alpha" id="alpha" aria-label="Filter by last name"></div>
+      </div>
+    </div>
+  </div>
+
+  <section class="section" style="padding-top:10px">
+    <div class="container">
+      <div class="result-bar">
+        <div class="rc" id="count" aria-live="polite"></div>
+        <div class="active-tags" id="tags"></div>
+      </div>
+      <div class="atty-grid" id="grid"></div>
+      <div class="empty-state" id="empty">
+        <i data-icon="users"></i>
+        <h3>No attorneys match those filters.</h3>
+        <p>Try removing a filter, or call us at <a href="tel:1.804.747.5200">804.747.5200</a> and we’ll point you to the right person.</p>
+        <button class="btn btn-outline btn-sm" id="reset2">Reset filters</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-sm" style="padding-top:0">
+    <div class="container">
+      <div class="cta-band reveal zoom">
+        <img src="assets/img/stock/team.jpg" alt="" loading="lazy">
+        <div>
+          <span class="eyebrow light">Not sure who to call?</span>
+          <h2>We’ll connect you with the right attorney.</h2>
+          <p>Describe your matter and our team will route it to the attorneys who handle that work every day.</p>
+        </div>
+        <div class="cta-actions">
+          <a class="cta-phone" href="tel:1.804.747.5200"><span class="cp-icon"><i data-icon="phone"></i></span><span><small>Call all offices</small><b>804.747.5200</b></span></a>
+          <a class="btn btn-gold" href="contact.html">Send a message <i data-icon="arrow" class="icon-arrow"></i></a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script src="assets/js/data-generated.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/cards.js"></script>
+<script>
+  (function () {
+    const H = window.HCCW;
+    const A = H.attorneys;
+    const $ = (id) => document.getElementById(id);
+    const grid = $('grid');
+    grid.innerHTML = A.map((a) => H.attyCard(a)).join('');
+    const cards = [...grid.children];
+
+    /* ----- Build controls ----- */
+    const offices = ['Richmond', 'DC Metro', 'Roanoke'];
+    const seg = $('locSeg');
+    seg.insertAdjacentHTML('beforeend', [['', 'All offices', A.length], ...offices.map((o) => [o, o, A.filter((a) => a.loc === o).length])]
+      .map(([v, l, n]) => `<button type="button" role="radio" data-v="${v}">${l} <span class="count">${n}</span></button>`).join(''));
+
+    const roles = [['', 'All positions'], ['Partner', 'Partners'], ['Of Counsel', 'Of Counsel'], ['Senior Of Counsel', 'Senior Of Counsel'], ['Associate', 'Associates'], ['Retired', 'Retired']];
+    $('role').innerHTML = roles.map(([v, l]) => `<option value="${v}">${l}${v ? ` (${A.filter((a) => a.title === v).length})` : ''}</option>`).join('');
+
+    const areas = [...H.areas].sort((x, y) => x.title.localeCompare(y.title));
+    $('area').innerHTML = `<option value="">All practice areas</option>` + areas.map((ar) => `<option value="${ar.slug}">${ar.title} (${A.filter((a) => a.areas.includes(ar.slug)).length})</option>`).join('');
+
+    const bars = [...new Set(A.flatMap((a) => a.bars))].sort();
+    $('bar').innerHTML = `<option value="">All bar admissions</option>` + bars.map((b) => `<option value="${b}">${b} (${A.filter((a) => a.bars.includes(b)).length})</option>`).join('');
+
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+    const have = new Set(A.map((a) => a.last[0].toUpperCase()));
+    $('alpha').innerHTML = letters.map((l) => `<button type="button" data-l="${l}" ${have.has(l) ? '' : 'disabled'} aria-label="Last names starting with ${l}">${l}</button>`).join('');
+
+    /* ----- State ----- */
+    const p = new URLSearchParams(location.search);
+    const S = { q: '', loc: p.get('location') || '', role: p.get('role') || '', area: p.get('area') || '', bar: p.get('bar') || '', letter: '' };
+
+    function moveSeg() {
+      const btn = seg.querySelector(`button[data-v="${S.loc}"]`) || seg.querySelector('button');
+      seg.querySelectorAll('button').forEach((b) => { b.classList.toggle('active', b === btn); b.setAttribute('aria-checked', b === btn); });
+      const pill = seg.querySelector('.seg-pill');
+      pill.style.width = btn.offsetWidth + 'px';
+      pill.style.transform = `translateX(${btn.offsetLeft - 4}px)`;
+    }
+
+    function syncUrl() {
+      const u = new URLSearchParams();
+      if (S.loc) u.set('location', S.loc);
+      if (S.role) u.set('role', S.role);
+      if (S.area) u.set('area', S.area);
+      if (S.bar) u.set('bar', S.bar);
+      history.replaceState(null, '', location.pathname + (u.toString() ? '?' + u : ''));
+    }
+
+    function apply(animate = true) {
+      const q = S.q.trim().toLowerCase();
+      let n = 0, delay = 0;
+      cards.forEach((el, i) => {
+        const a = A[i];
+        const ok = (!q || a.name.toLowerCase().includes(q))
+          && (!S.loc || a.loc === S.loc)
+          && (!S.role || a.title === S.role)
+          && (!S.area || a.areas.includes(S.area))
+          && (!S.bar || a.bars.includes(S.bar))
+          && (!S.letter || a.last[0].toUpperCase() === S.letter);
+        el.classList.toggle('hide', !ok);
+        el.classList.add('in');
+        if (ok) {
+          n++;
+          if (animate) {
+            el.classList.remove('enter'); void el.offsetWidth;
+            el.style.animationDelay = Math.min(delay, 0.5) + 's'; delay += 0.03;
+            el.classList.add('enter');
+          }
+        }
+      });
+      $('count').innerHTML = `Showing <b>${n}</b> of ${A.length} attorneys`;
+      $('empty').classList.toggle('show', n === 0);
+
+      // Controls state
+      $('role').value = S.role; $('area').value = S.area; $('bar').value = S.bar;
+      ['role', 'area', 'bar'].forEach((k) => $(k + 'Wrap').classList.toggle('is-set', !!S[k]));
+      $('alpha').querySelectorAll('button').forEach((b) => b.classList.toggle('active', b.dataset.l === S.letter));
+      moveSeg();
+
+      // Active tags
+      const t = [];
+      if (S.q) t.push(['q', `“${S.q}”`]);
+      if (S.loc) t.push(['loc', S.loc]);
+      if (S.role) t.push(['role', S.role]);
+      if (S.area) t.push(['area', H.areas.find((x) => x.slug === S.area)?.title || S.area]);
+      if (S.bar) t.push(['bar', S.bar + ' Bar']);
+      if (S.letter) t.push(['letter', 'Last name: ' + S.letter]);
+      $('tags').innerHTML = t.map(([k, l]) => `<button class="active-tag" data-k="${k}" aria-label="Remove filter ${l}">${l}<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>`).join('')
+        + (t.length > 1 ? '<button class="clear-all" id="clearAll">Clear all</button>' : '');
+      syncUrl();
+    }
+
+    function reset() { Object.assign(S, { q: '', loc: '', role: '', area: '', bar: '', letter: '' }); $('q').value = ''; apply(); }
+
+    /* ----- Events ----- */
+    let qt;
+    $('q').addEventListener('input', (e) => { clearTimeout(qt); qt = setTimeout(() => { S.q = e.target.value; apply(); }, 120); });
+    seg.addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; S.loc = b.dataset.v; apply(); });
+    $('role').addEventListener('change', (e) => { S.role = e.target.value; apply(); });
+    $('area').addEventListener('change', (e) => { S.area = e.target.value; apply(); });
+    $('bar').addEventListener('change', (e) => { S.bar = e.target.value; apply(); });
+    $('alpha').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b || b.disabled) return; S.letter = S.letter === b.dataset.l ? '' : b.dataset.l; apply(); });
+    $('tags').addEventListener('click', (e) => {
+      if (e.target.closest('#clearAll')) return reset();
+      const b = e.target.closest('.active-tag'); if (!b) return;
+      const k = b.dataset.k; S[k] = ''; if (k === 'q') $('q').value = ''; apply();
+    });
+    $('reset2').addEventListener('click', reset);
+    addEventListener('resize', moveSeg);
+
+    apply(false);
+    // Initial entrance after fonts settle
+    document.fonts && document.fonts.ready.then(moveSeg);
+    setTimeout(() => apply(true), 250);
+  })();
+</script>
+<script src="assets/js/site.js"></script>
+</body>
+</html>

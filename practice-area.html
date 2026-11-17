@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Practice Area | HCCW</title>
+  <link rel="icon" href="assets/img/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="practice">
+
+<main id="main">
+  <section class="page-hero">
+    <div class="ph-media"><img id="heroImg" src="assets/img/stock/gavel-dark.jpg" alt=""></div>
+    <div class="container">
+      <nav class="crumbs fade-up" aria-label="Breadcrumb"><a href="index.html">Home</a><i data-icon="chevronRight"></i><a href="practice-areas.html">Practice Areas</a><i data-icon="chevronRight"></i><a id="crumbCat" href="practice-areas.html"></a></nav>
+      <span class="eyebrow light fade-up d1" id="eyebrow">Practice Area</span>
+      <h1 class="fade-up d1" id="title">Practice Area</h1>
+      <p class="lead fade-up d2" id="tagline"></p>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:80px">
+    <div class="container detail-layout">
+      <article class="prose reveal" id="body"></article>
+      <aside class="sticky-side">
+        <div class="side-card reveal" id="contactsCard">
+          <h4><i data-icon="users"></i> Key Contacts</h4>
+          <div id="contacts"></div>
+          <a class="link-arrow" id="allAttys" style="margin-top:14px" href="attorneys.html">All attorneys in this practice <i data-icon="arrow"></i></a>
+        </div>
+        <div class="side-card dark reveal" style="--d:.1s">
+          <h4>Talk to our team</h4>
+          <p style="font-size:.95rem;line-height:1.6">Tell us about your matter and we’ll connect you with the right attorney.</p>
+          <a class="cta-phone" href="tel:1.804.747.5200" style="margin:18px 0 20px"><span class="cp-icon" style="width:48px;height:48px"><i data-icon="phone"></i></span><span><small>All offices</small><b style="font-size:1.6rem">804.747.5200</b></span></a>
+          <a class="btn btn-gold btn-sm" href="contact.html">Send a message <i data-icon="arrow" class="icon-arrow"></i></a>
+        </div>
+        <div class="side-card reveal" style="--d:.2s">
+          <h4 id="relTitle">Related Practices</h4>
+          <div class="related-list" id="related"></div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section bg-ivory">
+    <div class="container">
+      <div class="section-head reveal" style="display:flex;justify-content:space-between;align-items:flex-end;gap:30px;max-width:none;flex-wrap:wrap">
+        <div><span class="eyebrow">Keep exploring</span><h2 style="margin:0">Other practice groups</h2></div>
+        <a class="btn btn-outline" href="practice-areas.html">All practice areas <i data-icon="arrow" class="icon-arrow"></i></a>
+      </div>
+      <div class="cat-grid" id="otherCats" data-stagger=".08"></div>
+    </div>
+  </section>
+</main>
+
+<script src="assets/js/data-generated.js"></script>
+<script src="assets/js/data.js"></script>
+<script>
+  (function () {
+    const H = window.HCCW;
+    const slug = new URLSearchParams(location.search).get('area') || 'appellate-practice';
+    const a = H.areas.find((x) => x.slug === slug) || H.areas[0];
+    const c = H.categories.find((x) => x.id === a.cat);
+    document.title = `${a.title} | Practice Areas | HCCW`;
+    document.getElementById('title').textContent = a.title;
+    document.getElementById('tagline').textContent = H.taglines[a.slug] || '';
+    document.getElementById('eyebrow').textContent = c.name;
+    const cc = document.getElementById('crumbCat'); cc.textContent = c.name; cc.href = 'practice-areas.html#' + c.id;
+    document.getElementById('heroImg').src = `assets/img/stock/${a.img}.jpg`;
+
+    const esc = (s) => String(s).replace(/[&<>]/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
+    document.getElementById('body').innerHTML = a.blocks.map((b) => {
+      if (b.t === 'h') return `<h3>${esc(b.text)}</h3>`;
+      if (b.t === 'q') return `<blockquote>${esc(b.text)}</blockquote>`;
+      if (b.t === 'ul') return `<ul class="${b.items.length > 6 ? 'cols' : ''}">${b.items.map((i) => `<li>${esc(i)}</li>`).join('')}</ul>`;
+      if (/^[“"]/.test(b.text) && b.text.length > 200) return `<blockquote>${esc(b.text)}</blockquote>`;
+      return `<p>${esc(b.text)}</p>`;
+    }).join('');
+
+    // Key contacts (from the live site)
+    const contacts = a.contacts.map((s) => H.attorneys.find((x) => x.slug === s)).filter(Boolean);
+    document.getElementById('contacts').innerHTML = contacts.map((p) => `
+      <a class="contact-person" href="attorney.html?a=${p.slug}" data-atty="${p.slug}">
+        <img src="assets/img/attorneys/${p.slug}.jpg" alt="${p.name}" loading="lazy">
+        <span><b>${p.name}</b><span>${p.title} · ${p.loc}</span></span>
+      </a>`).join('');
+    const count = H.attorneys.filter((x) => x.areas.includes(a.slug)).length;
+    const all = document.getElementById('allAttys');
+    all.href = 'attorneys.html?area=' + a.slug;
+    all.innerHTML = `View all ${count} attorneys in this practice <i data-icon="arrow"></i>`;
+
+    // Related
+    const rel = c.areas.filter((s) => s !== a.slug);
+    document.getElementById('relTitle').textContent = 'More in ' + c.name;
+    document.getElementById('related').innerHTML = rel.map((s) => `<a href="practice-area.html?area=${s}">${H.areas.find((x) => x.slug === s).title}<i data-icon="arrow"></i></a>`).join('');
+
+    // Other categories
+    document.getElementById('otherCats').innerHTML = H.categories.filter((x) => x.id !== c.id).slice(0, 3).map((k) => {
+      const first = H.areas.find((x) => x.slug === k.areas[0]);
+      return `<div class="cat-card reveal">
+        <div class="cc-bg"><img src="assets/img/stock/${first.img}.jpg" alt="" loading="lazy"></div><span class="cc-count">${k.areas.length} areas</span>
+        <h3><a href="practice-areas.html#${k.id}">${k.name}</a></h3><p>${k.blurb}</p>
+        <div class="cc-list">${k.areas.map((s) => `<a href="practice-area.html?area=${s}">${H.areas.find((x) => x.slug === s).title}<i data-icon="arrow"></i></a>`).join('')}</div>
+      </div>`;
+    }).join('');
+  })();
+</script>
+<script src="assets/js/site.js"></script>
+</body>
+</html>
